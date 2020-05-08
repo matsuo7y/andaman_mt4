@@ -8,7 +8,7 @@
 #include "PipsLabel.mqh"
 
 #define DIALOG_WIDTH                        (200)
-#define DIALOG_HEIGHT                       (140)
+#define DIALOG_HEIGHT                       (180)
 
 #define INDENT_LEFT                         (5) 
 #define INDENT_TOP                          (5)
@@ -17,11 +17,15 @@
 
 #define CTL_GAP_Y                           (5)
 
+#define LABEL_HEIGHT                        (35)
 #define BUTTON_HEIGHT                       (30)
+
+#define LABEL_FONT_SIZE                     (14)
 
 class CTradeDialog : public CAppDialog
   {
 private:
+   CEdit             m_total_pips_label;
    CButton           m_close_all_button;
    CButton           m_close_current_button;
    CButton           m_delete_pips_button;
@@ -38,6 +42,7 @@ public:
    void              ChartEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
 
 protected:
+   bool              CreateTotalPipsLabel(void);
    bool              CreateCloseAllButton(void);
    bool              CreateCloseCurrentButton(void);
    bool              CreateDeletePipsButton(void);
@@ -69,6 +74,8 @@ bool CTradeDialog::Create(const long chart,const string name,const int subwin,co
   {
    if(!CAppDialog::Create(chart,name,subwin,x1,y1,x1+DIALOG_WIDTH,y1+DIALOG_HEIGHT))
       return(false);
+   if(!CreateTotalPipsLabel())
+      return(false);
    if(!CreateCloseAllButton())
       return(false);
    if(!CreateCloseCurrentButton())
@@ -78,10 +85,31 @@ bool CTradeDialog::Create(const long chart,const string name,const int subwin,co
    return(true);
   }
 
-bool CTradeDialog::CreateCloseAllButton(void)
+bool CTradeDialog::CreateTotalPipsLabel(void)
   {
    int x1 = INDENT_LEFT;
    int y1 = INDENT_TOP;
+   int x2 = ClientAreaWidth()-INDENT_RIGHT;
+   int y2 = y1+LABEL_HEIGHT;
+
+   if(!m_total_pips_label.Create(m_chart_id,m_name+"TotalPipsLabel",m_subwin,x1,y1,x2,y2))
+      return(false);
+   if(!m_total_pips_label.Text("Total 10.1 pips"))
+      return(false);
+   if(!m_total_pips_label.FontSize(LABEL_FONT_SIZE))
+      return(false);
+   if(!m_total_pips_label.ReadOnly(true))
+      return(false);
+   if(!Add(m_total_pips_label))
+      return(false);
+
+   return(true);
+  }
+
+bool CTradeDialog::CreateCloseAllButton(void)
+  {
+   int x1 = INDENT_LEFT;
+   int y1 = INDENT_TOP + LABEL_HEIGHT + CTL_GAP_Y;
    int x2 = ClientAreaWidth()-INDENT_RIGHT;
    int y2 = y1+BUTTON_HEIGHT;
 
@@ -98,7 +126,7 @@ bool CTradeDialog::CreateCloseAllButton(void)
 bool CTradeDialog::CreateCloseCurrentButton(void)
   {
    int x1 = INDENT_LEFT;
-   int y1 = INDENT_TOP + BUTTON_HEIGHT + CTL_GAP_Y;
+   int y1 = INDENT_TOP + LABEL_HEIGHT + BUTTON_HEIGHT + 2*CTL_GAP_Y;
    int x2 = ClientAreaWidth()-INDENT_RIGHT;
    int y2 = y1+BUTTON_HEIGHT;
 
@@ -115,7 +143,7 @@ bool CTradeDialog::CreateCloseCurrentButton(void)
 bool CTradeDialog::CreateDeletePipsButton(void)
   {
    int x1 = INDENT_LEFT;
-   int y1 = INDENT_TOP + 2*(BUTTON_HEIGHT + CTL_GAP_Y);
+   int y1 = INDENT_TOP + LABEL_HEIGHT + 2*BUTTON_HEIGHT + 3*CTL_GAP_Y;
    int x2 = ClientAreaWidth()-INDENT_RIGHT;
    int y2 = y1+BUTTON_HEIGHT;
 

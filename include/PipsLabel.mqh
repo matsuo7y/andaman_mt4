@@ -6,8 +6,8 @@
 #include <Controls\WndContainer.mqh>
 #include <Charts\Chart.mqh>
 
-#define PL_WIDTH  (50)
-#define PL_HEIGHT (30)
+#define PL_WIDTH  (55)
+#define PL_HEIGHT (25)
 
 #define FONT_SIZE (14)
 
@@ -36,10 +36,10 @@ protected:
   };
 
 EVENT_MAP_BEGIN(CPipsLabel)
-   ON_EVENT(ON_CLICK,m_pips_label,OnClickPipsLabel)
-   ON_EVENT(ON_DRAG_START,m_pips_label,OnDialogDragStart)
-   ON_EVENT_PTR(ON_DRAG_PROCESS,m_drag_object,OnDialogDragProcess)
-   ON_EVENT_PTR(ON_DRAG_END,m_drag_object,OnDialogDragEnd)
+ON_EVENT(ON_CLICK,m_pips_label,OnClickPipsLabel)
+ON_EVENT(ON_DRAG_START,m_pips_label,OnDialogDragStart)
+ON_EVENT_PTR(ON_DRAG_PROCESS,m_drag_object,OnDialogDragProcess)
+ON_EVENT_PTR(ON_DRAG_END,m_drag_object,OnDialogDragEnd)
 EVENT_MAP_END(CWndContainer)
 
 CPipsLabel::CPipsLabel(void)
