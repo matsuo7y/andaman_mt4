@@ -11,6 +11,7 @@
 
 #define TD_X (1350)
 #define TD_Y (50)
+
 CTradeDialog TradeDialog;
 
 int OnInit(void)
