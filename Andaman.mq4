@@ -7,7 +7,7 @@
 #property version   "1.00"
 #property strict
 
-#include "TradeDialog.mqh"
+#include "include/TradeDialog.mqh"
 
 #define TD_X (1350)
 #define TD_Y (50)
