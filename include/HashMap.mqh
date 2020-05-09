@@ -7,6 +7,25 @@
 
 #define BUCKET_SIZE (128)
 
+class CHashMapNode : public CObject
+  {
+public:
+   int           m_key;
+   CObject       *m_value;
+
+                 CHashMapNode(int key, CObject *value);
+                 ~CHashMapNode(void);
+  };
+
+CHashMapNode::CHashMapNode(int key, CObject *value) : m_key(key),
+                                                      m_value(value)
+  {
+  }
+
+CHashMapNode::~CHashMapNode(void)
+  {
+  }
+
 class CHashMap : public CObject
   {
 private:
@@ -17,22 +36,25 @@ public:
                  ~CHashMap(void);
 
    bool          Add(int key, CObject *value);
-   void          DeleteBucket(int key);
-   void          Shutdown();
+   CObject       *Get(int key);
+
+   void          Clear();
 
 protected:
    virtual int   Hash(int key);
   };
 
-CHashMap::CHashMap(void) {
-    for(int i=0; i<BUCKET_SIZE; i++) {
-        m_map[i] = NULL;
-    }
-}
+CHashMap::CHashMap(void)
+  {
+   for(int i=0; i<BUCKET_SIZE; i++) {
+      m_map[i] = NULL;
+   }
+  }
 
-CHashMap::~CHashMap(void) {
-   Shutdown();
-}
+CHashMap::~CHashMap(void)
+  {
+   Clear();
+  }
 
 bool CHashMap::Add(int key, CObject *value)
   {
@@ -42,28 +64,41 @@ bool CHashMap::Add(int key, CObject *value)
 
    if(array == NULL) {
       array = new CArrayObj;
-      array.FreeMode(false);
       m_map[bucket_key] = array;
    }
 
-   return array.Add(value);
+   for(int i=0; i<array.Total(); i++) {
+      CHashMapNode *node = dynamic_cast<CHashMapNode*>(array.At(i));
+      if(node.m_key == key)
+         return(false);
+   }
+
+   return array.Add(new CHashMapNode(key, value));
   }
 
-void CHashMap::DeleteBucket(int key)
+CObject* CHashMap::Get(int key)
   {
    int bucket_key = Hash(key);
 
-   if(m_map[bucket_key] == NULL)
-      return;
+   CArrayObj *array = m_map[bucket_key];
+   if(array == NULL)
+      return NULL;
 
-   delete m_map[bucket_key];
+   for(int i=0; i<array.Total(); i++) {
+      CHashMapNode *node = dynamic_cast<CHashMapNode*>(array.At(i));
+      if(node.m_key == key)
+        return node.m_value;
+   }
+   return NULL;
   }
 
-void CHashMap::Shutdown()
+void CHashMap::Clear()
   {
-   for(int i; i<BUCKET_SIZE; i++) {
-      if(m_map[i] != NULL)
+   for(int i=0; i<BUCKET_SIZE; i++) {
+      if(m_map[i] != NULL) {
          delete m_map[i];
+         m_map[i] = NULL;
+      }
    }
   }
 

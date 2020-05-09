@@ -93,7 +93,6 @@ bool CPipsLabel::CreatePipsLabel(void)
 
 void CPipsLabel::OnClickPipsLabel(void)
   {
-   Print(__FUNCTION__);
   }
 
 bool CPipsLabel::OnDialogDragStart(void)
