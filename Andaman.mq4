@@ -37,3 +37,8 @@ void OnChartEvent(const int id,
   {
    TradeDialog.ChartEvent(id,lparam,dparam,sparam);
   }
+
+void OnTick(void)
+  {
+   TradeDialog.UpdatePips();
+  }

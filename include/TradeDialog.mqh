@@ -4,6 +4,7 @@
 //+------------------------------------------------------------------+
 #include <Controls\Dialog.mqh>
 #include <Controls\Button.mqh>
+#include <stdlib.mqh>
 
 #include "PipsLabelProcessor.mqh"
 
@@ -22,6 +23,8 @@
 #define BUTTON_HEIGHT                       (30)
 
 #define LABEL_FONT_SIZE                     (14)
+
+#define SLIP_PAGE                           (3)  
 
 class CTradeDialog : public CAppDialog
   {
@@ -54,6 +57,7 @@ protected:
    void                    OnClickDeletePipsButton(void);
    bool                    OnDefault(const int id,const long &lparam,const double &dparam,const string &sparam);
 
+   void                    CloseOrders(bool all);
    string                  TotalPipsLabelText(void);
   };
 
@@ -180,10 +184,12 @@ void CTradeDialog::UpdatePips(void)
 
 void CTradeDialog::OnClickCloseAllButton(void)
   {
+     CloseOrders(true);
   }
 
 void CTradeDialog::OnClickCloseCurrentButton(void)
   {
+     CloseOrders(false);
   }
 
 void CTradeDialog::OnClickDeletePipsButton(void)
@@ -194,6 +200,61 @@ void CTradeDialog::OnClickDeletePipsButton(void)
 bool CTradeDialog::OnDefault(const int id,const long &lparam,const double &dparam,const string &sparam)
   {
    return(false);
+  }
+
+void CTradeDialog::CloseOrders(bool all)
+  {
+   const int total = OrdersTotal();
+   if(total == 0) {
+      return;
+   }
+
+   int tickets[];
+   if(ArrayResize(tickets, total) == -1)
+      return;
+   
+   int i;
+   for(i=0; i<total; i++) {
+      if(!OrderSelect(i, SELECT_BY_POS)) {
+         Print(ErrorDescription(GetLastError()));
+         tickets[i] = 0;
+         continue;
+      }
+
+      tickets[i] = OrderTicket();
+   }
+
+   for(i=0; i<total; i++) {
+      int ticket = tickets[i];
+      if(!OrderSelect(ticket, SELECT_BY_TICKET)) {
+         Print(ErrorDescription(GetLastError()));
+         continue;
+      }
+
+      if(!all && OrderSymbol() != Symbol())
+         continue;
+
+      double close_price;
+      switch(OrderType()) {
+      case OP_BUY:
+         close_price = Bid;
+         break;
+      case OP_SELL:
+         close_price = Ask;
+         break;
+      default: 
+         close_price = 0;
+         break;
+      }
+
+      if(close_price > 0) {
+         if(!OrderClose(ticket, OrderLots(), close_price, SLIP_PAGE, CLR_NONE)) {
+            Print(ErrorDescription(GetLastError()));
+         }
+      }
+   }
+   
+   ArrayFree(tickets);
   }
 
 string CTradeDialog::TotalPipsLabelText(void)
