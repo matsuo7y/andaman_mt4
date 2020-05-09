@@ -24,6 +24,7 @@ public:
    virtual bool OnEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
 
    bool         Pips(double pips);
+   bool         Color(color c);
 
 protected:
    virtual bool CreatePipsLabel(void);
@@ -64,6 +65,14 @@ bool CPipsLabel::Create(const long chart,const string name,const int subwin,cons
 bool CPipsLabel::Pips(double pips)
   {
    if(!m_pips_label.Text(DoubleToStr(pips, 1)))
+      return(false);
+
+   return(true);
+  }
+
+bool CPipsLabel::Color(color c)
+  {
+   if(!m_pips_label.Color(c))
       return(false);
 
    return(true);

@@ -5,7 +5,7 @@
 #include <Controls\Dialog.mqh>
 #include <Controls\Button.mqh>
 
-#include "PipsLabel.mqh"
+#include "PipsLabelProcessor.mqh"
 
 #define DIALOG_WIDTH                        (200)
 #define DIALOG_HEIGHT                       (180)
@@ -16,6 +16,7 @@
 #define INDENT_BOTTOM                       (5)
 
 #define CTL_GAP_Y                           (5)
+#define PIPS_LABEL_GAP_Y                    (50)
 
 #define LABEL_HEIGHT                        (35)
 #define BUTTON_HEIGHT                       (30)
@@ -25,32 +26,35 @@
 class CTradeDialog : public CAppDialog
   {
 private:
-   CEdit             m_total_pips_label;
-   CButton           m_close_all_button;
-   CButton           m_close_current_button;
-   CButton           m_delete_pips_button;
+   CEdit                   m_total_pips_label;
+   CButton                 m_close_all_button;
+   CButton                 m_close_current_button;
+   CButton                 m_delete_pips_button;
 
-   CPipsLabel*        m_pips_label;
+   CPipsLabelProcessor     *m_pips_label_processor;
 
 public:
-                     CTradeDialog(void);
-                    ~CTradeDialog(void);
+                           CTradeDialog(void);
+                           ~CTradeDialog(void);
 
-   virtual bool      Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2);
-   virtual bool      OnEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
+   virtual bool            Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2);
+   virtual bool            OnEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
 
-   void              ChartEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
+   void                    ChartEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
+   void                    UpdatePips(void);
 
 protected:
-   bool              CreateTotalPipsLabel(void);
-   bool              CreateCloseAllButton(void);
-   bool              CreateCloseCurrentButton(void);
-   bool              CreateDeletePipsButton(void);
+   bool                    CreateTotalPipsLabel(void);
+   bool                    CreateCloseAllButton(void);
+   bool                    CreateCloseCurrentButton(void);
+   bool                    CreateDeletePipsButton(void);
 
-   void              OnClickCloseAllButton(void);
-   void              OnClickCloseCurrentButton(void);
-   void              OnClickDeletePipsButton(void);
-   bool              OnDefault(const int id,const long &lparam,const double &dparam,const string &sparam);
+   void                    OnClickCloseAllButton(void);
+   void                    OnClickCloseCurrentButton(void);
+   void                    OnClickDeletePipsButton(void);
+   bool                    OnDefault(const int id,const long &lparam,const double &dparam,const string &sparam);
+
+   string                  TotalPipsLabelText(void);
   };
 
 EVENT_MAP_BEGIN(CTradeDialog)
@@ -62,18 +66,21 @@ EVENT_MAP_END(CAppDialog)
 
 CTradeDialog::CTradeDialog(void)
   {
+   m_pips_label_processor = new CPipsLabelProcessor;
   }
 
 CTradeDialog::~CTradeDialog(void)
   {
-   if(m_pips_label)
-      delete m_pips_label;
+   delete m_pips_label_processor;
   }
 
 bool CTradeDialog::Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2)
   {
    if(!CAppDialog::Create(chart,name,subwin,x1,y1,x1+DIALOG_WIDTH,y1+DIALOG_HEIGHT))
       return(false);
+   
+   m_pips_label_processor.PipsLabelCreateParam(m_chart_id, m_name, m_subwin, Left(), Top() + DIALOG_HEIGHT + PIPS_LABEL_GAP_Y, 0, 0);
+   
    if(!CreateTotalPipsLabel())
       return(false);
    if(!CreateCloseAllButton())
@@ -82,6 +89,7 @@ bool CTradeDialog::Create(const long chart,const string name,const int subwin,co
       return(false);
    if(!CreateDeletePipsButton())
       return(false);
+   
    return(true);
   }
 
@@ -94,7 +102,7 @@ bool CTradeDialog::CreateTotalPipsLabel(void)
 
    if(!m_total_pips_label.Create(m_chart_id,m_name+"TotalPipsLabel",m_subwin,x1,y1,x2,y2))
       return(false);
-   if(!m_total_pips_label.Text("Total 10.1 pips"))
+   if(!m_total_pips_label.Text(TotalPipsLabelText()))
       return(false);
    if(!m_total_pips_label.FontSize(LABEL_FONT_SIZE))
       return(false);
@@ -160,33 +168,36 @@ bool CTradeDialog::CreateDeletePipsButton(void)
 void CTradeDialog::ChartEvent(const int id,const long &lparam,const double &dparam,const string &sparam)
   {
    CAppDialog::ChartEvent(id, lparam, dparam, sparam);
-   if(m_pips_label)
-      m_pips_label.OnEvent(id, lparam, dparam, sparam);
+   m_pips_label_processor.OnEvent(id, lparam, dparam, sparam);
+  }
+
+void CTradeDialog::UpdatePips(void)
+  {
+   m_pips_label_processor.Update();
+   m_total_pips_label.Text(TotalPipsLabelText());
   }
 
 
 void CTradeDialog::OnClickCloseAllButton(void)
   {
-   if(m_pips_label)
-      return;
-
-   m_pips_label = new CPipsLabel;
-
-   m_pips_label.Create(m_chart_id,m_name+"PipsLabel",m_subwin,Left(),Top()+DIALOG_HEIGHT+50,0,0);
   }
 
 void CTradeDialog::OnClickCloseCurrentButton(void)
   {
-   Print(__FUNCTION__);
   }
 
 void CTradeDialog::OnClickDeletePipsButton(void)
   {
-   delete m_pips_label;
-   m_pips_label = NULL;
+   m_pips_label_processor.Clear();
   }
 
 bool CTradeDialog::OnDefault(const int id,const long &lparam,const double &dparam,const string &sparam)
   {
    return(false);
+  }
+
+string CTradeDialog::TotalPipsLabelText(void)
+  {
+   double total_pips = m_pips_label_processor.GetTotalPips();
+   return "Total " + DoubleToStr(total_pips, 1) + " pips";
   }
