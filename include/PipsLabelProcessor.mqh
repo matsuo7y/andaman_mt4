@@ -84,6 +84,9 @@ void CPipsLabelProcessor::Update(void)
          continue;
       }
 
+      if(OrderSymbol() != Symbol())
+         continue;
+
       double profit = OrderProfit();
       double profit_pips = (profit/OrderLots())/1000.0;
 
