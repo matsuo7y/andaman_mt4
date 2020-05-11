@@ -8,7 +8,7 @@
 
 #include "PipsLabelProcessor.mqh"
 
-#define DIALOG_WIDTH                        (200)
+#define DIALOG_WIDTH                        (180)
 #define DIALOG_HEIGHT                       (180)
 
 #define INDENT_LEFT                         (5) 
@@ -58,7 +58,7 @@ protected:
    bool                    OnDefault(const int id,const long &lparam,const double &dparam,const string &sparam);
 
    void                    CloseOrders(bool all);
-   string                  TotalPipsLabelText(void);
+   bool                    UpdateTotalPipsLabel(void);
   };
 
 EVENT_MAP_BEGIN(CTradeDialog)
@@ -106,7 +106,7 @@ bool CTradeDialog::CreateTotalPipsLabel(void)
 
    if(!m_total_pips_label.Create(m_chart_id,m_name+"TotalPipsLabel",m_subwin,x1,y1,x2,y2))
       return(false);
-   if(!m_total_pips_label.Text(TotalPipsLabelText()))
+   if(!UpdateTotalPipsLabel())
       return(false);
    if(!m_total_pips_label.FontSize(LABEL_FONT_SIZE))
       return(false);
@@ -178,7 +178,7 @@ void CTradeDialog::ChartEvent(const int id,const long &lparam,const double &dpar
 void CTradeDialog::UpdatePips(void)
   {
    m_pips_label_processor.Update();
-   m_total_pips_label.Text(TotalPipsLabelText());
+   UpdateTotalPipsLabel();
   }
 
 
@@ -257,8 +257,16 @@ void CTradeDialog::CloseOrders(bool all)
    ArrayFree(tickets);
   }
 
-string CTradeDialog::TotalPipsLabelText(void)
+bool CTradeDialog::UpdateTotalPipsLabel(void)
   {
    double total_pips = m_pips_label_processor.GetTotalPips();
-   return "Total " + DoubleToStr(total_pips, 1) + " pips";
+   color clr = m_pips_label_processor.GetTotalStatusColor();
+   string text = "  Total " + DoubleToStr(total_pips, 1) + " pips";
+
+   if(!m_total_pips_label.Text(text))
+      return(false);
+   if(!m_total_pips_label.Color(clr))
+      return(false);
+
+   return(true);
   }

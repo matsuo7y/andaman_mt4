@@ -12,7 +12,10 @@ class CPipsLabelProcessor
 private:
    CHashMap     *m_hash_map;
    CList        *m_list;
+
    double       m_total_pips;
+   double       m_total_profit;
+   double       m_total_commission;
 
    long         m_chart;
    string       m_name;
@@ -31,12 +34,14 @@ public:
 
    void         Update(void);
    double       GetTotalPips(void);
+   color        GetTotalStatusColor(void);
 
    void         Clear(void);
 
 protected:
    CPipsLabel   *Add(int ticket);
    CPipsLabel   *Get(int ticket);
+   color        GetStatusColor(double pips, double commission);
    void         PrintLastError();
   };
 
@@ -78,6 +83,9 @@ void CPipsLabelProcessor::PipsLabelCreateParam(const long chart,const string nam
 void CPipsLabelProcessor::Update(void)
   {
    m_total_pips = 0;
+   m_total_profit = 0;
+   m_total_commission = 0;
+
    for(int i=0; i<OrdersTotal(); i++) {
       if(!OrderSelect(i, SELECT_BY_POS)) {
          PrintLastError();      
@@ -88,28 +96,22 @@ void CPipsLabelProcessor::Update(void)
          continue;
 
       double profit = OrderProfit();
-      double profit_pips = (profit/OrderLots())/1000.0;
+      double commission = OrderCommission();
 
-      m_total_pips += profit_pips;
+      double pips = (profit/OrderLots())/1000.0;
+
+      m_total_pips += pips;
+      m_total_profit += profit;
+      m_total_commission += commission;
+
+      color clr = GetStatusColor(profit, commission);
 
       int ticket = OrderTicket();
       CPipsLabel *pips_label = Get(ticket);
       if(pips_label == NULL)
          pips_label = Add(ticket);
 
-      color clr;
-      double commission = OrderCommission();
-      if(profit - commission >= 0) {
-         clr = Blue;
-      } else {
-         if(profit >= 0) {
-            clr = Yellow;
-         } else {
-            clr = Red;
-         }
-      }
-
-      pips_label.Pips(profit_pips);
+      pips_label.Pips(pips);
       pips_label.Color(clr);
    }
   }
@@ -119,17 +121,18 @@ double CPipsLabelProcessor::GetTotalPips(void)
    return m_total_pips;
   }
 
+color CPipsLabelProcessor::GetTotalStatusColor(void)
+  {
+   return GetStatusColor(m_total_profit, m_total_commission);
+  }
+
 void CPipsLabelProcessor::Clear(void)
   {
    m_hash_map.Clear();
    m_list.Clear();
    m_total_pips = 0;
-  }
-
-void CPipsLabelProcessor::PrintLastError(void)
-  {
-   int error = GetLastError();
-   Print(ErrorDescription(error));
+   m_total_profit = 0;
+   m_total_commission = 0;
   }
 
 CPipsLabel* CPipsLabelProcessor::Add(int ticket)
@@ -146,4 +149,23 @@ CPipsLabel* CPipsLabelProcessor::Add(int ticket)
 CPipsLabel* CPipsLabelProcessor::Get(int ticket)
   {
    return m_hash_map.Get(ticket);
+  }
+
+color CPipsLabelProcessor::GetStatusColor(double profit, double commission)
+  {
+   if(profit + commission >= 0) {
+         return Blue;
+      } else {
+         if(profit >= 0) {
+            return Gold;
+         } else {
+            return Red;
+         }
+      }
+  }
+
+void CPipsLabelProcessor::PrintLastError(void)
+  {
+   int error = GetLastError();
+   Print(ErrorDescription(error));
   }
