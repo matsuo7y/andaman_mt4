@@ -29,7 +29,7 @@ public:
                 CPipsLabelProcessor(void);
                 ~CPipsLabelProcessor(void);
 
-   bool         OnEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
+   void         ChartEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
    void         PipsLabelCreateParam(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2);
 
    void         Update(void);
@@ -58,14 +58,29 @@ CPipsLabelProcessor::~CPipsLabelProcessor(void)
    delete m_array;
   }
 
-bool CPipsLabelProcessor::OnEvent(const int id,const long &lparam,const double &dparam,const string &sparam)
+void CPipsLabelProcessor::ChartEvent(const int id,const long &lparam,const double &dparam,const string &sparam)
   {
-   for(int i=0; i<m_array.Total(); i++) {
-      CPipsLabel *pips_label = dynamic_cast<CPipsLabel*>(m_array.At(i));
-      pips_label.OnEvent(id, lparam, dparam, sparam);
-   }
+   int mouse_x=(int)lparam;
+   int mouse_y=(int)dparam;
 
-   return(true);
+   int i;
+   CPipsLabel *pips_label;
+   switch(id)
+     {
+      case CHARTEVENT_MOUSE_MOVE:
+         for(i=0; i<m_array.Total(); i++) {
+            pips_label = dynamic_cast<CPipsLabel*>(m_array.At(i));
+            if(pips_label.OnMouseEvent(mouse_x,mouse_y,(int)StringToInteger(sparam))) {
+               break;
+            }
+         }
+         break;
+      default:
+         for(i=0; i<m_array.Total(); i++) {
+            pips_label = dynamic_cast<CPipsLabel*>(m_array.At(i));
+            pips_label.OnEvent(id, lparam, dparam, sparam);
+         }
+     }
   }
 
 void CPipsLabelProcessor::PipsLabelCreateParam(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2)
@@ -133,7 +148,9 @@ void CPipsLabelProcessor::Clear(void)
 CPipsLabel* CPipsLabelProcessor::Add(int ticket)
   {
    CPipsLabel *pips_label = new CPipsLabel;
+
    pips_label.Create(m_chart, m_name+IntegerToString(ticket), m_subwin, m_x1, m_y1, m_x2, m_y2);
+   pips_label.Id(m_subwin*CONTROLS_MAXIMUM_ID + m_array.Total());
 
    m_hash_map.Add(ticket, pips_label);
    m_array.Add(pips_label);

@@ -173,7 +173,7 @@ bool CTradeDialog::CreateDeletePipsButton(void)
 void CTradeDialog::ChartEvent(const int id,const long &lparam,const double &dparam,const string &sparam)
   {
    CAppDialog::ChartEvent(id, lparam, dparam, sparam);
-   m_pips_label_processor.OnEvent(id, lparam, dparam, sparam);
+   m_pips_label_processor.ChartEvent(id, lparam, dparam, sparam);
   }
 
 void CTradeDialog::UpdatePips(void)
