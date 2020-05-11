@@ -4,14 +4,14 @@
 //+------------------------------------------------------------------+
 #include "PipsLabel.mqh"
 #include "HashMap.mqh"
-#include <Arrays\List.mqh>
+#include <Arrays\ArrayObj.mqh>
 #include <stdlib.mqh>
 
 class CPipsLabelProcessor
   {
 private:
    CHashMap     *m_hash_map;
-   CList        *m_list;
+   CArrayObj    *m_array;
 
    double       m_total_pips;
    double       m_total_profit;
@@ -49,22 +49,20 @@ private:
 CPipsLabelProcessor::CPipsLabelProcessor(void) : m_total_pips(0)
   {
    m_hash_map = new CHashMap;
-   m_list = new CList;
+   m_array = new CArrayObj;
   }
 
 CPipsLabelProcessor::~CPipsLabelProcessor(void)
   {
    delete m_hash_map;
-   delete m_list;
+   delete m_array;
   }
 
 bool CPipsLabelProcessor::OnEvent(const int id,const long &lparam,const double &dparam,const string &sparam)
   {
-   CPipsLabel *pips_label = dynamic_cast<CPipsLabel*>(m_list.GetFirstNode());
-
-   while(pips_label != NULL) {
+   for(int i=0; i<m_array.Total(); i++) {
+      CPipsLabel *pips_label = dynamic_cast<CPipsLabel*>(m_array.At(i));
       pips_label.OnEvent(id, lparam, dparam, sparam);
-      pips_label = dynamic_cast<CPipsLabel*>(m_list.GetNextNode());
    }
 
    return(true);
@@ -128,7 +126,7 @@ color CPipsLabelProcessor::GetTotalStatusColor(void)
 void CPipsLabelProcessor::Clear(void)
   {
    m_hash_map.Clear();
-   m_list.Clear();
+   m_array.Clear();
    ClearTradeValues();
   }
 
@@ -138,7 +136,7 @@ CPipsLabel* CPipsLabelProcessor::Add(int ticket)
    pips_label.Create(m_chart, m_name+IntegerToString(ticket), m_subwin, m_x1, m_y1, m_x2, m_y2);
 
    m_hash_map.Add(ticket, pips_label);
-   m_list.Add(pips_label);
+   m_array.Add(pips_label);
 
    return pips_label;
   }
