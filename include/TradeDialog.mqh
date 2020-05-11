@@ -57,6 +57,7 @@ protected:
    void                    OnClickDeletePipsButton(void);
    bool                    OnDefault(const int id,const long &lparam,const double &dparam,const string &sparam);
 
+private:
    void                    CloseOrders(bool all);
    bool                    UpdateTotalPipsLabel(void);
   };

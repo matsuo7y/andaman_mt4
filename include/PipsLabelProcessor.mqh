@@ -38,10 +38,11 @@ public:
 
    void         Clear(void);
 
-protected:
+private:
    CPipsLabel   *Add(int ticket);
    CPipsLabel   *Get(int ticket);
    color        GetStatusColor(double pips, double commission);
+   void         ClearTradeValues();
    void         PrintLastError();
   };
 
@@ -82,9 +83,7 @@ void CPipsLabelProcessor::PipsLabelCreateParam(const long chart,const string nam
 
 void CPipsLabelProcessor::Update(void)
   {
-   m_total_pips = 0;
-   m_total_profit = 0;
-   m_total_commission = 0;
+   ClearTradeValues();
 
    for(int i=0; i<OrdersTotal(); i++) {
       if(!OrderSelect(i, SELECT_BY_POS)) {
@@ -130,9 +129,7 @@ void CPipsLabelProcessor::Clear(void)
   {
    m_hash_map.Clear();
    m_list.Clear();
-   m_total_pips = 0;
-   m_total_profit = 0;
-   m_total_commission = 0;
+   ClearTradeValues();
   }
 
 CPipsLabel* CPipsLabelProcessor::Add(int ticket)
@@ -162,6 +159,13 @@ color CPipsLabelProcessor::GetStatusColor(double profit, double commission)
             return Red;
          }
       }
+  }
+
+void CPipsLabelProcessor::ClearTradeValues(void)
+  {
+   m_total_pips = 0;
+   m_total_profit = 0;
+   m_total_commission = 0;
   }
 
 void CPipsLabelProcessor::PrintLastError(void)
