@@ -8,18 +8,25 @@
 #property strict
 
 #include "include/TradeDialog.mqh"
+#include "include/PipsLabelProcessor.mqh"
 
 #define TD_X (1500)
 #define TD_Y (30)
 
-CTradeDialog TradeDialog;
+CTradeDialog            *trade_dialog;
+CPipsLabelProcessor     *pips_label_processor;
 
 int OnInit(void)
   {
-   if(!TradeDialog.Create(0,"Trade Controller",0,TD_X,TD_Y,0,0))
+   if(pips_label_processor == NULL) {
+      pips_label_processor = new CPipsLabelProcessor;
+   }
+   trade_dialog = new CTradeDialog(pips_label_processor);
+
+   if(!trade_dialog.Create(0,"Trade Controller",0,TD_X,TD_Y,0,0))
      return(INIT_FAILED);
 
-   if(!TradeDialog.Run())
+   if(!trade_dialog.Run())
      return(INIT_FAILED);
 
    return(INIT_SUCCEEDED);
@@ -27,7 +34,13 @@ int OnInit(void)
 
 void OnDeinit(const int reason)
   {
-   TradeDialog.Destroy(reason);
+   trade_dialog.Destroy(reason);
+   delete trade_dialog;
+
+   if(reason != REASON_CHARTCHANGE) {
+      delete pips_label_processor;
+      pips_label_processor = NULL;
+   }
   }
 
 void OnChartEvent(const int id,
@@ -35,10 +48,14 @@ void OnChartEvent(const int id,
                   const double &dparam,
                   const string &sparam)
   {
-   TradeDialog.ChartEvent(id,lparam,dparam,sparam);
+   if(trade_dialog) {
+      trade_dialog.ChartEvent(id,lparam,dparam,sparam);
+   }
   }
 
 void OnTick(void)
   {
-   TradeDialog.UpdatePips();
+   if(trade_dialog) {
+      trade_dialog.UpdatePips();
+   }
   }

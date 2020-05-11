@@ -37,7 +37,7 @@ private:
    CPipsLabelProcessor     *m_pips_label_processor;
 
 public:
-                           CTradeDialog(void);
+                           CTradeDialog(CPipsLabelProcessor *processor);
                            ~CTradeDialog(void);
 
    virtual bool            Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2);
@@ -69,14 +69,13 @@ ON_EVENT(ON_CLICK,m_delete_pips_button,OnClickDeletePipsButton)
 ON_OTHER_EVENTS(OnDefault)
 EVENT_MAP_END(CAppDialog)
 
-CTradeDialog::CTradeDialog(void)
+CTradeDialog::CTradeDialog(CPipsLabelProcessor *processor)
   {
-   m_pips_label_processor = new CPipsLabelProcessor;
+     m_pips_label_processor = processor;
   }
 
 CTradeDialog::~CTradeDialog(void)
   {
-   delete m_pips_label_processor;
   }
 
 bool CTradeDialog::Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2)
