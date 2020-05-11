@@ -9,8 +9,8 @@
 
 #include "include/TradeDialog.mqh"
 
-#define TD_X (1350)
-#define TD_Y (50)
+#define TD_X (1500)
+#define TD_Y (30)
 
 CTradeDialog TradeDialog;
 

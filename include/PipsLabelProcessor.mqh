@@ -7,6 +7,8 @@
 #include <Arrays\ArrayObj.mqh>
 #include <stdlib.mqh>
 
+#define CONTROL_ID_START (10000)
+
 class CPipsLabelProcessor
   {
 private:
@@ -150,7 +152,7 @@ CPipsLabel* CPipsLabelProcessor::Add(int ticket)
    CPipsLabel *pips_label = new CPipsLabel;
 
    pips_label.Create(m_chart, m_name+IntegerToString(ticket), m_subwin, m_x1, m_y1, m_x2, m_y2);
-   pips_label.Id(m_subwin*CONTROLS_MAXIMUM_ID + m_array.Total());
+   pips_label.Id(CONTROL_ID_START + m_array.Total());
 
    m_hash_map.Add(ticket, pips_label);
    m_array.Add(pips_label);
