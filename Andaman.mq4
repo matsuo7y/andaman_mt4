@@ -9,34 +9,41 @@
 
 #include "include/TradeDialog.mqh"
 
-CTradeDialog            *trade_dialog;
-CTradeDialogState       *trade_dialog_state;
+CTradeDialog *trade_dialog;
 
 int OnInit(void)
   {
-   if(trade_dialog_state == NULL) {
-      trade_dialog_state = new CTradeDialogState;
+   if(trade_dialog == NULL) {
+      trade_dialog = new CTradeDialog;
+
+      if(!trade_dialog.Create(0,"Trade Controller",0))
+         return(INIT_FAILED);
+
+      if(!trade_dialog.Run())
+         return(INIT_FAILED);
    }
-   trade_dialog = new CTradeDialog(trade_dialog_state);
-
-   if(!trade_dialog.Create(0,"Trade Controller",0))
-     return(INIT_FAILED);
-
-   if(!trade_dialog.Run())
-     return(INIT_FAILED);
-
+   
    return(INIT_SUCCEEDED);
   }
 
 void OnDeinit(const int reason)
   {
-   trade_dialog.Destroy(reason);
-   delete trade_dialog;
+   switch(reason) 
+     {
+      case REASON_PROGRAM:
+      case REASON_REMOVE:
+      case REASON_RECOMPILE:
+      case REASON_CHARTCLOSE:
+      case REASON_PARAMETERS:
+      case REASON_INITFAILED:
+         trade_dialog.Destroy(reason);
+         delete trade_dialog;
+         trade_dialog = NULL;
+         break;
 
-   if(reason != REASON_CHARTCHANGE) {
-      delete trade_dialog_state;
-      trade_dialog_state = NULL;
-   }
+      default:
+         break;
+     }
   }
 
 void OnChartEvent(const int id,
