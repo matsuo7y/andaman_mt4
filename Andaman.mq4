@@ -13,7 +13,7 @@ CTradeDialog *trade_dialog;
 
 int OnInit(void)
   {
-   if(trade_dialog == NULL) {
+   if(!trade_dialog) {
       trade_dialog = new CTradeDialog;
 
       if(!trade_dialog.Create(0,"Trade Controller",0))
