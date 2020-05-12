@@ -34,7 +34,6 @@ void OnDeinit(const int reason)
       case REASON_REMOVE:
       case REASON_RECOMPILE:
       case REASON_CHARTCLOSE:
-      case REASON_PARAMETERS:
       case REASON_INITFAILED:
          trade_dialog.Destroy(reason);
          delete trade_dialog;
