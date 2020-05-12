@@ -22,17 +22,15 @@ private:
    long         m_chart;
    string       m_name;
    int          m_subwin;
-   int          m_x1;
-   int          m_y1;
-   int          m_x2;
-   int          m_y2;
+   int          m_left;
+   int          m_top;
 
 public:
                 CPipsLabelProcessor(void);
                 ~CPipsLabelProcessor(void);
 
    void         ChartEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
-   void         PipsLabelCreateParam(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2);
+   void         PipsLabelCreateParam(const long chart,const string name,const int subwin,const int x1,const int y1);
 
    void         Update(void);
    double       GetTotalPips(void);
@@ -85,15 +83,13 @@ void CPipsLabelProcessor::ChartEvent(const int id,const long &lparam,const doubl
      }
   }
 
-void CPipsLabelProcessor::PipsLabelCreateParam(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2)
+void CPipsLabelProcessor::PipsLabelCreateParam(const long chart,const string name,const int subwin,const int x1,const int y1)
   {
    m_chart = chart;
    m_name = name;
    m_subwin = subwin;
-   m_x1 = x1;
-   m_y1 = y1;
-   m_x2 = x2;
-   m_y2 = y2;
+   m_left = x1;
+   m_top = y1;
   }
 
 void CPipsLabelProcessor::Update(void)
@@ -106,17 +102,16 @@ void CPipsLabelProcessor::Update(void)
          continue;
       }
 
-      if(OrderSymbol() != Symbol())
-         continue;
-
       double profit = OrderProfit();
       double commission = OrderCommission();
-
       double pips = (profit/OrderLots())/1000.0;
 
       m_total_pips += pips;
       m_total_profit += profit;
       m_total_commission += commission;
+
+      if(OrderSymbol() != Symbol())
+         continue;
 
       color clr = GetStatusColor(profit, commission);
 
@@ -151,7 +146,7 @@ CPipsLabel* CPipsLabelProcessor::Add(int ticket)
   {
    CPipsLabel *pips_label = new CPipsLabel;
 
-   pips_label.Create(m_chart, m_name+IntegerToString(ticket), m_subwin, m_x1, m_y1, m_x2, m_y2);
+   pips_label.Create(m_chart, m_name+IntegerToString(ticket), m_subwin, m_left, m_top);
    pips_label.Id(CONTROL_ID_START + m_array.Total());
 
    m_hash_map.Add(ticket, pips_label);

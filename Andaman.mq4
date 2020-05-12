@@ -8,22 +8,18 @@
 #property strict
 
 #include "include/TradeDialog.mqh"
-#include "include/PipsLabelProcessor.mqh"
-
-#define TD_X (1500)
-#define TD_Y (30)
 
 CTradeDialog            *trade_dialog;
-CPipsLabelProcessor     *pips_label_processor;
+CTradeDialogState       *trade_dialog_state;
 
 int OnInit(void)
   {
-   if(pips_label_processor == NULL) {
-      pips_label_processor = new CPipsLabelProcessor;
+   if(trade_dialog_state == NULL) {
+      trade_dialog_state = new CTradeDialogState;
    }
-   trade_dialog = new CTradeDialog(pips_label_processor);
+   trade_dialog = new CTradeDialog(trade_dialog_state);
 
-   if(!trade_dialog.Create(0,"Trade Controller",0,TD_X,TD_Y,0,0))
+   if(!trade_dialog.Create(0,"Trade Controller",0))
      return(INIT_FAILED);
 
    if(!trade_dialog.Run())
@@ -38,8 +34,8 @@ void OnDeinit(const int reason)
    delete trade_dialog;
 
    if(reason != REASON_CHARTCHANGE) {
-      delete pips_label_processor;
-      pips_label_processor = NULL;
+      delete trade_dialog_state;
+      trade_dialog_state = NULL;
    }
   }
 

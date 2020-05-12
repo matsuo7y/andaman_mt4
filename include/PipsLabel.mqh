@@ -14,26 +14,26 @@
 class CPipsLabel : public CWndContainer
   {
 private:
-   CEdit        m_pips_label;
+   CEdit            m_pips_label;
 
 public:
-                CPipsLabel(void);
-                ~CPipsLabel(void);
+                    CPipsLabel(void) {};
+                    ~CPipsLabel(void) {};
 
-   virtual bool Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2);
-   virtual bool OnEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
+   bool             Create(const long chart,const string name,const int subwin,const int x1,const int y1);
+   virtual bool     OnEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
 
-   bool         Pips(double pips);
-   bool         Color(color c);
+   bool             Pips(double pips);
+   bool             Color(color c);
 
 protected:
-   virtual bool CreatePipsLabel(void);
+   virtual bool     CreatePipsLabel(void);
 
-   virtual void OnClickPipsLabel(void);
+   virtual void     OnClickPipsLabel(void);
 
-   virtual bool OnDialogDragStart(void);
-   virtual bool OnDialogDragProcess(void);
-   virtual bool OnDialogDragEnd(void);
+   virtual bool     OnDialogDragStart(void);
+   virtual bool     OnDialogDragProcess(void);
+   virtual bool     OnDialogDragEnd(void);
   };
 
 EVENT_MAP_BEGIN(CPipsLabel)
@@ -43,15 +43,7 @@ ON_EVENT_PTR(ON_DRAG_PROCESS,m_drag_object,OnDialogDragProcess)
 ON_EVENT_PTR(ON_DRAG_END,m_drag_object,OnDialogDragEnd)
 EVENT_MAP_END(CWndContainer)
 
-CPipsLabel::CPipsLabel(void)
-  {
-  }
-
-CPipsLabel::~CPipsLabel(void)
-  {
-  }
-
-bool CPipsLabel::Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2)
+bool CPipsLabel::Create(const long chart,const string name,const int subwin,const int x1,const int y1)
   {
    if(!CWndContainer::Create(chart, name, subwin, x1, y1, x1+PL_WIDTH, y1+PL_HEIGHT))
       return(false);

@@ -8,6 +8,9 @@
 
 #include "PipsLabelProcessor.mqh"
 
+#define DIALOG_LEFT                         (1500)
+#define DIALOG_TOP                          (30)
+
 #define DIALOG_WIDTH                        (180)
 #define DIALOG_HEIGHT                       (180)
 
@@ -24,7 +27,39 @@
 
 #define LABEL_FONT_SIZE                     (14)
 
-#define SLIP_PAGE                           (3)  
+#define SLIP_PAGE                           (3)
+
+class CTradeDialogState
+  {
+private:
+   int                     m_left;
+   int                     m_top;
+   CPipsLabelProcessor     *m_pips_label_processor;
+
+public:
+                           CTradeDialogState(void);
+                           ~CTradeDialogState(void);
+
+   int                     Left(void) { return m_left; };
+   void                    Left(int left) { m_left = left; };
+   int                     Top(void) { return m_top; };
+   void                    Top(int top) { m_top = top; };
+
+   CPipsLabelProcessor     *PipsLabelProcessor(void) { return m_pips_label_processor; };
+
+   void                    Update(int left, int top) { Left(left); Top(top); };
+  };
+
+CTradeDialogState::CTradeDialogState(void) : m_left(DIALOG_LEFT),
+                                             m_top(DIALOG_TOP)
+  {
+   m_pips_label_processor = new CPipsLabelProcessor;
+  }
+
+CTradeDialogState::~CTradeDialogState(void)
+  {
+   delete m_pips_label_processor;
+  }
 
 class CTradeDialog : public CAppDialog
   {
@@ -36,12 +71,15 @@ private:
 
    CPipsLabelProcessor     *m_pips_label_processor;
 
+   CTradeDialogState       *m_state;
+
 public:
-                           CTradeDialog(CPipsLabelProcessor *processor);
+                           CTradeDialog(CTradeDialogState *state);
                            ~CTradeDialog(void);
 
-   virtual bool            Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2);
+   bool                    Create(const long chart,const string name,const int subwin);
    virtual bool            OnEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
+   virtual void            Destroy(const int reason=REASON_PROGRAM);
 
    void                    ChartEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
    void                    UpdatePips(void);
@@ -69,21 +107,25 @@ ON_EVENT(ON_CLICK,m_delete_pips_button,OnClickDeletePipsButton)
 ON_OTHER_EVENTS(OnDefault)
 EVENT_MAP_END(CAppDialog)
 
-CTradeDialog::CTradeDialog(CPipsLabelProcessor *processor)
+CTradeDialog::CTradeDialog(CTradeDialogState *state)
   {
-     m_pips_label_processor = processor;
+     m_state = state;
   }
 
 CTradeDialog::~CTradeDialog(void)
   {
   }
 
-bool CTradeDialog::Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2)
+bool CTradeDialog::Create(const long chart,const string name,const int subwin)
   {
+   int x1 = m_state.Left();
+   int y1 = m_state.Top();
+
    if(!CAppDialog::Create(chart,name,subwin,x1,y1,x1+DIALOG_WIDTH,y1+DIALOG_HEIGHT))
       return(false);
-   
-   m_pips_label_processor.PipsLabelCreateParam(m_chart_id, m_name, m_subwin, Left(), Top() + DIALOG_HEIGHT + PIPS_LABEL_GAP_Y, 0, 0);
+
+   m_pips_label_processor = m_state.PipsLabelProcessor();
+   m_pips_label_processor.PipsLabelCreateParam(m_chart_id, m_name, m_subwin, Left(), Top() + DIALOG_HEIGHT + PIPS_LABEL_GAP_Y);
    
    if(!CreateTotalPipsLabel())
       return(false);
@@ -95,6 +137,13 @@ bool CTradeDialog::Create(const long chart,const string name,const int subwin,co
       return(false);
    
    return(true);
+  }
+
+void CTradeDialog::Destroy(const int reason)
+  {
+   m_state.Update(Left(), Top());
+
+   CAppDialog::Destroy(reason);
   }
 
 bool CTradeDialog::CreateTotalPipsLabel(void)
