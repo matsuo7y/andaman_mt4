@@ -57,7 +57,7 @@ protected:
    void                    OnClickCloseAllButton(void);
    void                    OnClickCloseCurrentButton(void);
    void                    OnClickDeletePipsButton(void);
-   bool                    OnDefault(const int id,const long &lparam,const double &dparam,const string &sparam);
+   bool                    OnDefault(const int id,const long &lparam,const double &dparam,const string &sparam) { return(false); };
 
 private:
    void                    CloseOrders(bool all);
@@ -201,11 +201,6 @@ void CTradeDialog::OnClickCloseCurrentButton(void)
 void CTradeDialog::OnClickDeletePipsButton(void)
   {
    m_pips_label_processor.Clear();
-  }
-
-bool CTradeDialog::OnDefault(const int id,const long &lparam,const double &dparam,const string &sparam)
-  {
-   return(false);
   }
 
 void CTradeDialog::CloseOrders(bool all)

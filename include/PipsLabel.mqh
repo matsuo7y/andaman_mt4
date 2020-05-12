@@ -34,6 +34,8 @@ protected:
    virtual bool     OnDialogDragStart(void);
    virtual bool     OnDialogDragProcess(void);
    virtual bool     OnDialogDragEnd(void);
+
+   bool             OnDefault(const int id,const long &lparam,const double &dparam,const string &sparam) { return(false); };
   };
 
 EVENT_MAP_BEGIN(CPipsLabel)
@@ -41,6 +43,7 @@ ON_EVENT(ON_CLICK,m_pips_label,OnClickPipsLabel)
 ON_EVENT(ON_DRAG_START,m_pips_label,OnDialogDragStart)
 ON_EVENT_PTR(ON_DRAG_PROCESS,m_drag_object,OnDialogDragProcess)
 ON_EVENT_PTR(ON_DRAG_END,m_drag_object,OnDialogDragEnd)
+ON_OTHER_EVENTS(OnDefault)
 EVENT_MAP_END(CWndContainer)
 
 bool CPipsLabel::Create(const long chart,const string name,const int subwin,const int x1,const int y1)
