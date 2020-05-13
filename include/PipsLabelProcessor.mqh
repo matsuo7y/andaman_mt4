@@ -75,6 +75,10 @@ void CPipsLabelProcessor::ChartEvent(const int id,const long &lparam,const doubl
             }
          }
          break;
+
+      case CHARTEVENT_CHART_CHANGE:
+        break;
+
       default:
          for(i=0; i<m_array.Total(); i++) {
             pips_label = dynamic_cast<CPipsLabel*>(m_array.At(i));
