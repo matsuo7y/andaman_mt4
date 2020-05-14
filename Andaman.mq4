@@ -18,9 +18,6 @@ int OnInit(void)
 
       if(!trade_dialog.Create(0,"Trade Controller",0))
          return(INIT_FAILED);
-
-      if(!trade_dialog.Run())
-         return(INIT_FAILED);
    }
    
    return(INIT_SUCCEEDED);
