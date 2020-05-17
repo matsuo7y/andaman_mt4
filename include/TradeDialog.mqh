@@ -7,7 +7,7 @@
 #include <stdlib.mqh>
 #include "PipsLabelProcessor.mqh"
 
-#define DIALOG_LEFT                         (1500)
+#define DIALOG_LEFT                         (1530)
 #define DIALOG_TOP                          (30)
 
 #define DIALOG_WIDTH                        (180)
@@ -270,6 +270,8 @@ void CTradeDialog::CloseOrders(bool all)
       tickets[i] = OrderTicket();
    }
 
+   PlaySound("ok.wav");
+
    for(i=0; i<total; i++) {
       int ticket = tickets[i];
       if(!OrderSelect(ticket, SELECT_BY_TICKET)) {
@@ -299,7 +301,8 @@ void CTradeDialog::CloseOrders(bool all)
          }
       }
    }
-   
+
+   PlaySound("ok.wav");
    ArrayFree(tickets);
   }
 
