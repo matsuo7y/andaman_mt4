@@ -212,6 +212,7 @@ void CTradeDialog::ChartEvent(const int id,const long &lparam,const double &dpar
          break;
 
       case CHARTEVENT_CHART_CHANGE:
+         UpdatePips();
          break;
 
       default:
