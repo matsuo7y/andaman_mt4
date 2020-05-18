@@ -279,16 +279,18 @@ void CTradeDialog::CloseOrders(bool all)
          continue;
       }
 
-      if(!all && OrderSymbol() != Symbol())
+      string symbol = OrderSymbol();
+      if(!all && symbol != Symbol()) {
          continue;
+      }
 
       double close_price;
       switch(OrderType()) {
       case OP_BUY:
-         close_price = Bid;
+         close_price = MarketInfo(symbol, MODE_BID);
          break;
       case OP_SELL:
-         close_price = Ask;
+         close_price = MarketInfo(symbol, MODE_ASK);
          break;
       default: 
          close_price = 0;
